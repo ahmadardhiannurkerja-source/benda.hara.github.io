@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sistem Pembayaran Mingguan — IAI KHAS AL-ARSYADI</title>
+<style>
+:root{--navy:#12304a;--teal:#087f8c;--bg:#f3f6f9;--line:#dce4eb;--ink:#172b3a;--muted:#607383;--red:#b42318;--green:#16794b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:10px 14px;background:var(--teal);color:white;font-weight:650;transition:all 0.2s;}button:hover{opacity:0.9;transform:translateY(-1px);}button.secondary{background:#e7eef3;color:var(--navy)}button.danger{background:var(--red)}button.small{padding:6px 9px;font-size:13px}.hidden{display:none!important}.wrap{max-width:1200px;margin:auto;padding:20px}.top{background:var(--navy);color:white;padding:20px 0}.topin{max-width:1200px;margin:auto;padding:0 20px;display:flex;justify-content:space-between;gap:15px;align-items:center}.brand{font-size:21px;font-weight:800}.sub{opacity:.8;font-size:13px}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0;box-shadow:0 3px 14px #1d344508}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{padding:16px;background:white;border:1px solid var(--line);border-radius:12px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:24px;margin-top:5px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.tabs button{background:#e4edf2;color:var(--navy)}.tabs button.active{background:var(--teal);color:white;box-shadow:0 2px 8px rgba(8,127,140,0.4);}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.row button{flex:0 0 auto}label{display:block;font-size:13px;font-weight:700;margin:8px 0 5px}input,select,textarea{width:100%;border:1px solid #cbd6df;border-radius:8px;padding:10px;background:white;color:var(--ink)}h2{font-size:20px;margin:0 0 12px}h3{font-size:16px;margin:0 0 10px}.formgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:700px}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#f7fafc;color:#405565;font-size:13px}td .actions{display:flex;gap:5px;flex-wrap:wrap}.pill{display:inline-block;padding:3px 8px;border-radius:99px;background:#fff0d9;color:#875500;font-size:12px}.pill.ok{background:#dcfce7;color:#166534}.muted{color:var(--muted)}.note{padding:12px;background:#fff8e8;border:1px solid #f2d69a;border-radius:10px;font-size:13px}.login{max-width:440px;margin:50px auto}.login h1{font-size:23px}.right{margin-left:auto}.foot{text-align:center;color:var(--muted);font-size:12px;padding:20px}.receipt{max-width:760px;margin:20px auto;background:white;padding:28px;border:1px solid #bbb}.receipthead{text-align:center;border-bottom:2px solid #222;padding-bottom:14px}.receiptgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}.receiptline{border-bottom:1px dotted #888;padding:9px 0}.signs{display:flex;justify-content:space-between;margin-top:45px;text-align:center}.signs>div{width:40%}.error{color:var(--red);font-size:13px;margin-top:10px}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(18,48,74,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.modal-box{background:white;padding:24px;border-radius:14px;max-width:400px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.25);}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.formgrid{grid-template-columns:1fr}.topin{align-items:flex-start;flex-direction:column}.wrap{padding:12px}.panel{padding:13px}.stat strong{font-size:20px}}
+@media print{body{background:white}.top,.tabs,.noprint,.foot{display:none!important}.wrap{max-width:none;padding:0}.panel{border:0;box-shadow:none}.receipt{border:0;margin:0;max-width:none}.no-print{display:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="topin"><div><div class="brand">IAI KHAS AL-ARSYADI</div><div class="sub">Sistem Pencatatan Pembayaran Mingguan (Cloud)</div></div><div id="userbar" class="sub"></div></div></header>
+
+<section id="loginView" class="wrap">
+ <div class="panel login"><h1>Masuk Petugas</h1><p class="muted">Khusus petugas TU dan bendahara.</p>
+ <form id="loginForm"><label>Nama pengguna</label><input id="loginUser" autocomplete="username" required placeholder="tu atau bendahara"><label>Kata sandi</label><input id="loginPass" type="password" autocomplete="current-password" required placeholder="Masukkan kata sandi"><div style="margin-top:14px"><button type="submit" style="width:100%" id="loginBtn">Memuat Koneksi Cloud...</button></div><div id="loginError" class="error"></div></form>
+ <div class="note" style="margin-top:16px"><b>Akun awal:</b><br>Petugas TU — pengguna <code>tu</code>, sandi <code>TU12345!</code><br>Bendahara — pengguna <code>bendahara</code>, sandi <code>Bendahara123!</code><br><small>Segera ubah sandi melalui menu Pengaturan setelah masuk.</small></div></div>
+</section>
+
+<main id="appView" class="wrap hidden">
+ <div class="note ok" style="background:#dcfce7;border-color:#86efac;"><b>Status Cloud:</b> <span id="cloudStatus">Terhubung dan tersinkronisasi otomatis.</span></div>
+ 
+ <div class="grid" style="margin-top:14px"><div class="stat"><small>Total santri/mahasiswa aktif</small><strong id="statPeople">0</strong></div><div class="stat"><small>Penerimaan tercatat</small><strong id="statPaid">Rp0</strong></div><div class="stat"><small>Total tunggakan aktif</small><strong id="statDebt">Rp0</strong></div><div class="stat"><small>Transaksi tercatat</small><strong id="statTx">0</strong></div></div>
+ 
+ <nav class="tabs noprint" id="tabs">
+    <button data-tab="dashboard" class="active" onclick="switchTab('dashboard')">Ringkasan</button>
+    <button data-tab="people" onclick="switchTab('people')">Data wajib bayar</button>
+    <button data-tab="payments" onclick="switchTab('payments')">Pembayaran</button>
+    <button data-tab="arrears" onclick="switchTab('arrears')">Tunggakan</button>
+    <button data-tab="reports" onclick="switchTab('reports')">Laporan</button>
+    <button data-tab="settings" onclick="switchTab('settings')">Pengaturan & Data</button>
+ </nav>
+ 
+ <section id="tab-dashboard" class="tab panel"><h2>Ringkasan pembayaran</h2><p>Catat pembayaran mingguan secara manual, cetak kwitansi, dan pantau tunggakan dari satu halaman.</p><div class="row"><button onclick="switchTab('people')">+ Tambah data wajib bayar</button><button class="secondary" onclick="switchTab('payments')">Catat pembayaran</button><button class="secondary" onclick="switchTab('reports')">Lihat laporan</button></div><h3 style="margin-top:22px">Pembayaran terbaru</h3><div id="recentTable" class="tablewrap"></div></section>
+ 
+ <section id="tab-people" class="tab panel hidden"><h2>Data wajib bayar</h2><form id="personForm"><input type="hidden" id="personId"><div class="formgrid"><div><label>NIM / ID</label><input id="pCode" required placeholder="Contoh: 2026001"></div><div><label>Nama lengkap</label><input id="pName" required></div><div><label>Program / kelas</label><input id="pGroup" placeholder="Contoh: PAI A"></div><div><label>Nominal wajib per minggu (Rp)</label><input id="pFee" type="number" min="0" required value="25000"></div><div><label>Mulai kewajiban (tanggal)</label><input id="pStart" type="date" required></div><div><label>Status</label><select id="pStatus"><option value="Aktif">Aktif</option><option value="Nonaktif">Nonaktif</option></select></div></div><div class="row" style="margin-top:12px"><button type="submit">Simpan data</button><button type="button" class="secondary" onclick="resetPersonForm()">Batal / formulir baru</button></div></form><hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><div class="row"><input id="peopleSearch" placeholder="Cari nama atau NIM..." oninput="renderPeople()"></div><div id="peopleTable" class="tablewrap" style="margin-top:10px"></div></section>
+ 
+ <section id="tab-payments" class="tab panel hidden"><h2>Catat pembayaran manual</h2><form id="paymentForm"><div class="formgrid"><div><label>Wajib bayar</label><select id="payPerson" required></select></div><div><label>Tanggal bayar</label><input id="payDate" type="date" required></div><div><label>Periode minggu (keterangan)</label><input id="payPeriod" required placeholder="Contoh: 1–7 November 2026"></div><div><label>Nominal diterima (Rp)</label><input id="payAmount" type="number" min="1" required></div><div><label>Metode</label><select id="payMethod"><option>Tunai</option><option>Transfer (dicatat manual)</option><option>Lainnya</option></select></div><div><label>Petugas penerima</label><input id="payOfficer" required></div><div style="grid-column:1/-1"><label>Catatan</label><input id="payNote" placeholder="Opsional"></div></div><div class="row" style="margin-top:12px"><button type="submit">Simpan & buat kwitansi</button><button type="button" class="secondary" onclick="document.getElementById('paymentForm').reset();setToday('payDate')">Kosongkan</button></div></form><h3 style="margin-top:24px">Riwayat transaksi</h3><div class="row"><input id="paymentSearch" placeholder="Cari nama, nomor kwitansi, atau periode..." oninput="renderPayments()"></div><div id="paymentsTable" class="tablewrap" style="margin-top:10px"></div></section>
+ 
+ <section id="tab-arrears" class="tab panel hidden"><h2>Daftar tunggakan</h2><p class="muted">Perkiraan tunggakan dihitung dari jumlah minggu sejak tanggal mulai kewajiban dikurangi pembayaran yang tercatat. Periksa tanggal mulai dan periode secara berkala.</p><div class="row"><input id="arrearsSearch" placeholder="Cari nama atau NIM..." oninput="renderArrears()"><button class="secondary" onclick="window.print()">Cetak daftar</button></div><div id="arrearsTable" class="tablewrap" style="margin-top:10px"></div></section>
+ 
+ <section id="tab-reports" class="tab panel hidden"><h2>Laporan penerimaan</h2><div class="formgrid"><div><label>Dari tanggal</label><input type="date" id="reportFrom"></div><div><label>Sampai tanggal</label><input type="date" id="reportTo"></div><div style="align-self:end"><button onclick="renderReports()">Tampilkan laporan</button> <button class="secondary" onclick="exportCSV()">Unduh CSV</button></div></div><div id="reportSummary" style="margin:16px 0"></div><div id="reportTable" class="tablewrap"></div></section>
+ 
+ <section id="tab-settings" class="tab panel hidden"><h2>Pengaturan, akun & cadangan</h2><h3>Ubah kata sandi akun yang sedang digunakan</h3><form id="passwordForm" class="formgrid"><div><label>Kata sandi saat ini</label><input type="password" id="oldPass" required></div><div><label>Kata sandi baru (minimal 8 karakter)</label><input type="password" id="newPass" minlength="8" required></div><div style="align-self:end"><button type="submit">Ubah kata sandi</button></div></form><p id="passwordMsg" class="muted"></p><hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><h3>Cadangkan / pulihkan data (Opsional)</h3><p class="muted">Kini data Anda tersimpan di Cloud. Namun, Anda tetap bisa mengunduh file cadangan secara manual.</p><div class="row"><button onclick="backupData()">Unduh cadangan JSON</button><label class="secondary" style="padding:10px 14px;border-radius:9px;cursor:pointer;text-align:center">Pulihkan cadangan JSON<input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="restoreData(event)"></label><button class="danger" onclick="clearTransactions()">Hapus semua transaksi</button></div><p id="backupMsg" class="muted"></p><hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><h3>Keluar</h3><button class="secondary" onclick="logout()">Keluar dari aplikasi</button><p class="muted">Untuk keamanan, selalu keluar setelah selesai.</p></section>
+</main>
+
+<div id="receiptArea" class="hidden"></div>
+<div class="foot">IAI KHAS AL-ARSYADI · Sistem pencatatan internal · Versi Cloud Tersinkronisasi</div>
+
+<!-- Custom Modal UI (Replacing alert & confirm) -->
+<div id="modalOverlay" class="modal-overlay hidden">
+    <div class="modal-box">
+        <h3 id="modalTitle" style="margin-top:0;font-size:18px;">Pemberitahuan</h3>
+        <p id="modalMessage" style="color:var(--muted);font-size:14px;margin-bottom:24px;"></p>
+        <div class="row" style="justify-content:flex-end;">
+            <button id="modalCancel" class="secondary">Batal</button>
+            <button id="modalConfirm" class="danger">Ya, Lanjutkan</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+// FIREBASE CLOUD INTEGRATION
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// Cloud setup configuration
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'iai-khas-payment-app';
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const firestore = getFirestore(app);
+
+// Utilities & DOM Selectors
+const $ = id => document.getElementById(id);
+const rupiah = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n)||0);
+const today = () => new Date().toLocaleDateString('en-CA');
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function defaultDB() { 
+    return {
+        people:[], 
+        payments:[], 
+        users:{
+            tu:{password:'TU12345!',role:'Petugas TU'},
+            bendahara:{password:'Bendahara123!',role:'Bendahara'}
+        },
+        seq:1
+    };
+}
+
+let dbState = defaultDB();
+let session = null;
+let isReady = false;
+
+// Custom Modal Handler (replaces standard alerts/confirms to avoid iframe blocks)
+function showModal(message, onConfirm, isAlert = false) {
+    $('modalMessage').textContent = message;
+    $('modalOverlay').classList.remove('hidden');
+    
+    const btnCancel = $('modalCancel');
+    const btnConfirm = $('modalConfirm');
+    
+    // Clear old event listeners
+    const newCancel = btnCancel.cloneNode(true);
+    const newConfirm = btnConfirm.cloneNode(true);
+    btnCancel.parentNode.replaceChild(newCancel, btnCancel);
+    btnConfirm.parentNode.replaceChild(newConfirm, btnConfirm);
+    
+    if (isAlert) {
+        newCancel.classList.add('hidden');
+        newConfirm.textContent = 'Mengerti';
+        newConfirm.classList.remove('danger');
+        newConfirm.classList.add('secondary');
+        newConfirm.onclick = () => {
+            $('modalOverlay').classList.add('hidden');
+            if(onConfirm) onConfirm();
+        };
+    } else {
+        newCancel.classList.remove('hidden');
+        newConfirm.textContent = 'Ya, Lanjutkan';
+        newConfirm.classList.add('danger');
+        newConfirm.classList.remove('secondary');
+        newCancel.onclick = () => $('modalOverlay').classList.add('hidden');
+        newConfirm.onclick = () => {
+            $('modalOverlay').classList.add('hidden');
+            if(onConfirm) onConfirm();
+        };
+    }
+}
+
+// Authentication & Firestore Syncing Setup
+async function initAuth() {
+    try {
+        if (typeof __initial_auth_token !== 'undefined') {
+            await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+            await signInAnonymously(auth);
+        }
+        
+        // Strict path for Cloud Artifacts requirement
+        const docRef = doc(firestore, 'artifacts', appId, 'public', 'data', 'cloud_db', 'main');
+        
+        onSnapshot(docRef, (snap) => {
+            if (snap.exists()) {
+                dbState = snap.data();
+                // Ensure array/objects exist from legacy structures
+                if(!dbState.people) dbState.people = [];
+                if(!dbState.payments) dbState.payments = [];
+                if(!dbState.users) dbState.users = defaultDB().users;
+                if(!dbState.seq) dbState.seq = 1;
+            } else {
+                dbState = defaultDB();
+                setDoc(docRef, dbState).catch(console.error);
+            }
+            
+            if(!isReady) {
+                isReady = true;
+                $('loginBtn').textContent = 'Masuk';
+                $('loginBtn').disabled = false;
+            }
+            if (session) renderAll(); // Re-render if new cloud data arrives while logged in
+            
+        }, (err) => {
+            console.error("Cloud Sync Error:", err);
+            showModal("Terjadi kesalahan sinkronisasi cloud. Coba muat ulang halaman.", null, true);
+        });
+
+    } catch (err) {
+        console.error("Auth Error:", err);
+        showModal("Gagal terhubung ke server cloud. Pastikan koneksi internet stabil.", null, true);
+    }
+}
+
+// Launch Auth
+initAuth();
+
+// Save mechanism - saves to cloud immediately
+function save() {
+    if(!auth.currentUser) return;
+    const docRef = doc(firestore, 'artifacts', appId, 'public', 'data', 'cloud_db', 'main');
+    setDoc(docRef, dbState).catch(e => {
+        console.error("Save error:", e);
+        showModal("Gagal menyimpan ke cloud.", null, true);
+    });
+    renderAll();
+}
+
+function setToday(id){ $(id).value = today(); }
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(e => e.classList.add('hidden'));
+    $('tab-'+tab).classList.remove('hidden');
+    document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    if(tab==='people') renderPeople();
+    if(tab==='payments') renderPayments();
+    if(tab==='arrears') renderArrears();
+    if(tab==='reports') renderReports();
+}
+
+// Login
+$('loginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if(!isReady) { 
+        showModal('Sedang memuat koneksi ke Cloud. Silakan tunggu sebentar...', null, true); 
+        return; 
+    }
+    let u = $('loginUser').value.trim().toLowerCase();
+    let p = $('loginPass').value;
+    if(dbState.users[u] && dbState.users[u].password === p) {
+        session = {username: u, role: dbState.users[u].role};
+        $('loginError').textContent = '';
+        showApp();
+    } else {
+        $('loginError').textContent = 'Nama pengguna atau kata sandi salah.';
+    }
+});
+
+function showApp() {
+    $('loginView').classList.add('hidden');
+    $('appView').classList.remove('hidden');
+    $('userbar').innerHTML = esc(session.username) + ' · ' + esc(session.role) + '　<button class="small secondary" onclick="logout()">Keluar</button>';
+    setToday('payDate');
+    setToday('pStart');
+    renderAll();
+}
+
+function logout() {
+    session = null;
+    $('appView').classList.add('hidden');
+    $('loginView').classList.remove('hidden');
+    $('loginPass').value = '';
+    $('userbar').textContent = '';
+}
+
+function renderAll() {
+    if(!session) return;
+    $('statPeople').textContent = dbState.people.filter(p => p.status === 'Aktif').length;
+    $('statPaid').textContent = rupiah(dbState.payments.reduce((s,p) => s + Number(p.amount), 0));
+    $('statTx').textContent = dbState.payments.length;
+    $('statDebt').textContent = rupiah(dbState.people.filter(p => p.status === 'Aktif').reduce((s,p) => s + arrearAmount(p), 0));
+    renderPeople();
+    renderPayments();
+    renderArrears();
+    renderRecent();
+    populatePeopleSelect();
+    renderReports();
+}
+
+function resetPersonForm() { 
+    $('personForm').reset();
+    $('personId').value = '';
+    $('pFee').value = '25000';
+    setToday('pStart');
+}
+
+// Add/Edit Person
+$('personForm').addEventListener('submit', e => {
+    e.preventDefault();
+    let id = $('personId').value;
+    let code = $('pCode').value.trim();
+    
+    if(dbState.people.some(p => p.code.toLowerCase() === code.toLowerCase() && p.id !== id)) {
+        showModal('NIM/ID sudah digunakan.', null, true);
+        return;
+    }
+    
+    let p = {
+        id: id || 'P' + Date.now(),
+        code,
+        name: $('pName').value.trim(),
+        group: $('pGroup').value.trim(),
+        fee: Number($('pFee').value),
+        start: $('pStart').value,
+        status: $('pStatus').value
+    };
+    
+    if(id) dbState.people = dbState.people.map(x => x.id === id ? p : x);
+    else dbState.people.push(p);
+    
+    save();
+    resetPersonForm();
+    switchTab('people');
+});
+
+function renderPeople() {
+    if(!$('peopleTable')) return;
+    let q = ($('peopleSearch')?.value || '').toLowerCase();
+    let rows = dbState.people.filter(p => (p.name + ' ' + p.code + ' ' + p.group).toLowerCase().includes(q));
+    
+    $('peopleTable').innerHTML = rows.length ? 
+        `<table><thead><tr><th>NIM/ID</th><th>Nama</th><th>Program/kelas</th><th>Mingguan</th><th>Mulai</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>${rows.map(p => `<tr>
+            <td>${esc(p.code)}</td>
+            <td>${esc(p.name)}</td>
+            <td>${esc(p.group)}</td>
+            <td>${rupiah(p.fee)}</td>
+            <td>${esc(p.start)}</td>
+            <td>${esc(p.status)}</td>
+            <td><div class="actions">
+                <button class="small secondary" onclick="editPerson('${p.id}')">Edit</button>
+                <button class="small" onclick="quickPay('${p.id}')">Bayar</button>
+                <button class="small danger" onclick="deletePerson('${p.id}')">Hapus</button>
+            </div></td></tr>`).join('')}
+        </tbody></table>` : '<p class="muted">Belum ada data. Tambahkan data wajib bayar melalui formulir di atas.</p>';
+}
+
+function editPerson(id) {
+    let p = dbState.people.find(x => x.id === id);
+    if(!p) return;
+    $('personId').value = p.id;
+    $('pCode').value = p.code;
+    $('pName').value = p.name;
+    $('pGroup').value = p.group;
+    $('pFee').value = p.fee;
+    $('pStart').value = p.start;
+    $('pStatus').value = p.status;
+    window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function deletePerson(id) {
+    showModal('Hapus data santri/mahasiswa ini? Riwayat transaksi lama tetap tersimpan.', () => {
+        dbState.people = dbState.people.filter(p => p.id !== id);
+        save();
+    });
+}
+
+function populatePeopleSelect() {
+    let old = $('payPerson')?.value || '';
+    $('payPerson').innerHTML = '<option value="">Pilih nama...</option>' + 
+        dbState.people.filter(p => p.status === 'Aktif')
+        .map(p => `<option value="${p.id}">${esc(p.code)} — ${esc(p.name)}</option>`).join('');
+    if(dbState.people.some(p => p.id === old)) $('payPerson').value = old;
+}
+
+function quickPay(id) {
+    switchTab('payments');
+    $('payPerson').value = id;
+    let p = dbState.people.find(x => x.id === id);
+    if(p) $('payAmount').value = p.fee;
+    $('payAmount').focus();
+}
+
+$('payPerson').addEventListener('change', () => {
+    let p = dbState.people.find(x => x.id === $('payPerson').value);
+    if(p) $('payAmount').value = p.fee;
+});
+
+// Add Payment
+$('paymentForm').addEventListener('submit', e => {
+    e.preventDefault();
+    let p = dbState.people.find(x => x.id === $('payPerson').value);
+    if(!p) {
+        showModal('Pilih wajib bayar dari daftar.', null, true);
+        return;
+    }
+    
+    let tx = {
+        id: 'KWT-' + new Date().getFullYear() + '-' + String(dbState.seq++).padStart(5, '0'),
+        personId: p.id,
+        code: p.code,
+        name: p.name,
+        group: p.group,
+        date: $('payDate').value,
+        period: $('payPeriod').value.trim(),
+        amount: Number($('payAmount').value),
+        method: $('payMethod').value,
+        officer: $('payOfficer').value.trim(),
+        note: $('payNote').value.trim(),
+        created: new Date().toISOString()
+    };
+    
+    dbState.payments.push(tx);
+    save();
+    showReceipt(tx.id);
+    $('paymentForm').reset();
+    setToday('payDate');
+    $('payOfficer').value = session.username;
+    switchTab('payments');
+});
+
+function renderPayments() {
+    if(!$('paymentsTable')) return;
+    let q = ($('paymentSearch')?.value || '').toLowerCase();
+    let rows = [...dbState.payments].reverse().filter(p => (p.name + ' ' + p.code + ' ' + p.id + ' ' + p.period).toLowerCase().includes(q));
+    
+    $('paymentsTable').innerHTML = rows.length ? 
+        `<table><thead><tr><th>No. kwitansi</th><th>Tanggal</th><th>Nama / NIM</th><th>Periode</th><th>Nominal</th><th>Petugas</th><th>Aksi</th></tr></thead>
+        <tbody>${rows.map(p => `<tr>
+            <td>${esc(p.id)}</td>
+            <td>${esc(p.date)}</td>
+            <td>${esc(p.name)}<br><small>${esc(p.code)}</small></td>
+            <td>${esc(p.period)}</td>
+            <td>${rupiah(p.amount)}</td>
+            <td>${esc(p.officer)}</td>
+            <td><div class="actions">
+                <button class="small" onclick="showReceipt('${p.id}')">Kwitansi</button>
+                <button class="small danger" onclick="deletePayment('${p.id}')">Hapus</button>
+            </div></td></tr>`).join('')}
+        </tbody></table>` : '<p class="muted">Belum ada transaksi di cloud.</p>';
+}
+
+function deletePayment(id) {
+    showModal('Hapus transaksi ini? Nominal penerimaan akan berubah.', () => {
+        dbState.payments = dbState.payments.filter(p => p.id !== id);
+        save();
+    });
+}
+
+function showReceipt(id) {
+    let p = dbState.payments.find(x => x.id === id);
+    if(!p) return;
+    let area = $('receiptArea');
+    area.classList.remove('hidden');
+    area.innerHTML = `<div class="receipt"><div class="receipthead"><h2>IAI KHAS AL-ARSYADI</h2><div>KWITANSI PEMBAYARAN MINGGUAN</div><b>${esc(p.id)}</b></div><div class="receiptgrid"><div><div class="receiptline"><b>Sudah terima dari</b><br>${esc(p.name)} (${esc(p.code)})</div><div class="receiptline"><b>Program / kelas</b><br>${esc(p.group||'-')}</div><div class="receiptline"><b>Periode pembayaran</b><br>${esc(p.period)}</div></div><div><div class="receiptline"><b>Tanggal</b><br>${esc(p.date)}</div><div class="receiptline"><b>Jumlah</b><br><strong style="font-size:21px">${rupiah(p.amount)}</strong></div><div class="receiptline"><b>Metode</b><br>${esc(p.method)}</div></div></div><p>Terbilang: <b>${esc(terbilang(p.amount))} rupiah</b></p><p>Catatan: ${esc(p.note||'-')}</p><div class="signs"><div>Pembayar<br><br><br>(__________________)</div><div>Petugas penerima<br><br><br><b>${esc(p.officer)}</b></div></div><p style="text-align:center;margin-top:25px;font-size:12px">Kwitansi ini merupakan bukti pencatatan pembayaran manual tersinkronisasi awan (cloud).</p><div class="noprint row"><button onclick="window.print()">Cetak / Simpan PDF</button><button class="secondary" onclick="$('receiptArea').classList.add('hidden')">Tutup kwitansi</button></div></div>`;
+    window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function terbilang(n) {
+    n = Math.floor(Number(n) || 0);
+    if(n === 0) return 'nol';
+    let a = ['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];
+    function t(x) {
+        if(x < 12) return a[x];
+        if(x < 20) return t(x - 10) + ' belas';
+        if(x < 100) return t(Math.floor(x / 10)) + ' puluh' + (x % 10 ? ' ' + t(x % 10) : '');
+        if(x < 200) return 'seratus' + (x > 100 ? ' ' + t(x - 100) : '');
+        if(x < 1000) return t(Math.floor(x / 100)) + ' ratus' + (x % 100 ? ' ' + t(x % 100) : '');
+        if(x < 2000) return 'seribu' + (x > 1000 ? ' ' + t(x - 1000) : '');
+        if(x < 1000000) return t(Math.floor(x / 1000)) + ' ribu' + (x % 1000 ? ' ' + t(x % 1000) : '');
+        if(x < 1000000000) return t(Math.floor(x / 1000000)) + ' juta' + (x % 1000000 ? ' ' + t(x % 1000000) : '');
+        return String(x);
+    }
+    return t(n);
+}
+
+function dueWeeks(p) {
+    if(!p.start) return 0;
+    let start = new Date(p.start + 'T00:00:00'), now = new Date();
+    now.setHours(0, 0, 0, 0);
+    if(start > now) return 0;
+    return Math.floor((now - start) / (7 * 86400000)) + 1;
+}
+
+function arrearAmount(p) {
+    let due = dueWeeks(p) * Number(p.fee || 0);
+    let paid = dbState.payments.filter(t => t.personId === p.id).reduce((s, t) => s + Number(t.amount || 0), 0);
+    return Math.max(0, due - paid);
+}
+
+function renderArrears() {
+    if(!$('arrearsTable')) return;
+    let q = ($('arrearsSearch')?.value || '').toLowerCase();
+    let rows = dbState.people.filter(p => p.status === 'Aktif' && (p.name + ' ' + p.code).toLowerCase().includes(q))
+        .map(p => ({...p, debt: arrearAmount(p), weeks: dueWeeks(p)}))
+        .filter(p => p.debt > 0)
+        .sort((a, b) => b.debt - a.debt);
+        
+    $('arrearsTable').innerHTML = rows.length ? 
+        `<table><thead><tr><th>NIM/ID</th><th>Nama</th><th>Mulai</th><th>Perkiraan minggu</th><th>Wajib/minggu</th><th>Tunggakan perkiraan</th><th>Aksi</th></tr></thead>
+        <tbody>${rows.map(p => `<tr>
+            <td>${esc(p.code)}</td>
+            <td>${esc(p.name)}</td>
+            <td>${esc(p.start)}</td>
+            <td>${p.weeks}</td>
+            <td>${rupiah(p.fee)}</td>
+            <td><b>${rupiah(p.debt)}</b></td>
+            <td><button class="small" onclick="quickPay('${p.id}')">Catat bayar</button></td>
+        </tr>`).join('')}</tbody></table>` : '<p class="muted">Tidak ada tunggakan berdasarkan perhitungan saat ini.</p>';
+}
+
+function renderRecent() {
+    let rows = [...dbState.payments].reverse().slice(0, 5);
+    $('recentTable').innerHTML = rows.length ? 
+        `<table><thead><tr><th>Tanggal</th><th>Nama</th><th>Periode</th><th>Nominal</th><th>Kwitansi</th></tr></thead>
+        <tbody>${rows.map(p => `<tr>
+            <td>${esc(p.date)}</td>
+            <td>${esc(p.name)}</td>
+            <td>${esc(p.period)}</td>
+            <td>${rupiah(p.amount)}</td>
+            <td><button class="small" onclick="showReceipt('${p.id}')">${esc(p.id)}</button></td>
+        </tr>`).join('')}</tbody></table>` : '<p class="muted">Belum ada pembayaran yang dicatat.</p>';
+}
+
+function filteredPayments() {
+    let f = $('reportFrom').value, t = $('reportTo').value;
+    return dbState.payments.filter(p => (!f || p.date >= f) && (!t || p.date <= t)).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function renderReports() {
+    if(!$('reportTable')) return;
+    let rows = filteredPayments(), total = rows.reduce((s, p) => s + p.amount, 0);
+    $('reportSummary').innerHTML = `<div class="grid"><div class="stat"><small>Jumlah transaksi</small><strong>${rows.length}</strong></div><div class="stat"><small>Total penerimaan</small><strong>${rupiah(total)}</strong></div></div>`;
+    
+    $('reportTable').innerHTML = rows.length ? 
+        `<table><thead><tr><th>Tanggal</th><th>Kwitansi</th><th>Nama</th><th>Periode</th><th>Metode</th><th>Petugas</th><th>Nominal</th></tr></thead>
+        <tbody>${rows.map(p => `<tr>
+            <td>${esc(p.date)}</td>
+            <td>${esc(p.id)}</td>
+            <td>${esc(p.name)} (${esc(p.code)})</td>
+            <td>${esc(p.period)}</td>
+            <td>${esc(p.method)}</td>
+            <td>${esc(p.officer)}</td>
+            <td>${rupiah(p.amount)}</td>
+        </tr>`).join('')}</tbody></table>` : '<p class="muted">Tidak ada transaksi pada rentang tanggal tersebut.</p>';
+}
+
+function exportCSV() {
+    let rows = filteredPayments();
+    let head = ['Tanggal','No Kwitansi','NIM/ID','Nama','Periode','Metode','Petugas','Nominal','Catatan'];
+    let lines = [head, ...rows.map(p => [p.date, p.id, p.code, p.name, p.period, p.method, p.officer, p.amount, p.note])]
+        .map(r => r.map(v => '"' + String(v??'').replace(/"/g, '""') + '"').join(';')).join('\r\n');
+    let blob = new Blob(['\ufeff' + lines], {type:'text/csv;charset=utf-8;'});
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'laporan-pembayaran-iai-khas-al-arsyadi.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+function backupData() {
+    let blob = new Blob([JSON.stringify(dbState, null, 2)], {type: 'application/json'});
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'cadangan-iai-khas-al-arsyadi-' + today() + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showModal('Data berhasil diunduh. Simpan file cadangan ini dengan aman.', null, true);
+}
+
+function restoreData(e) {
+    let file = e.target.files[0];
+    if(!file) return;
+    let r = new FileReader();
+    r.onload = () => {
+        try {
+            let d = JSON.parse(r.result);
+            if(!d.people || !d.payments || !d.users) throw Error();
+            showModal('Pulihkan cadangan? Data yang ada di CLOUD saat ini akan ditimpa dengan file ini.', () => {
+                dbState = d;
+                save();
+                $('backupMsg').textContent = 'Cadangan berhasil dipulihkan dan diunggah ke Cloud.';
+            });
+        } catch(err) {
+            showModal('File cadangan yang Anda masukkan tidak valid.', null, true);
+        }
+        e.target.value = '';
+    };
+    r.readAsText(file);
+}
+
+function clearTransactions() {
+    showModal('Yakin menghapus SEMUA transaksi pembayaran secara permanen? Data santri (wajib bayar) akan tetap ada.', () => {
+        showModal('KONFIRMASI TERAKHIR: Tindakan ini akan menghapus data di seluruh perangkat dan tidak dapat dibatalkan kecuali Anda memiliki file cadangan.', () => {
+            dbState.payments = [];
+            save();
+            $('backupMsg').textContent = 'Semua transaksi telah dihapus secara permanen dari Cloud.';
+        });
+    });
+}
+
+$('passwordForm').addEventListener('submit', e => {
+    e.preventDefault();
+    let old = $('oldPass').value, nw = $('newPass').value;
+    if(dbState.users[session.username].password !== old) {
+        $('passwordMsg').textContent = 'Kata sandi saat ini salah.';
+        return;
+    }
+    if(nw.length < 8) {
+        $('passwordMsg').textContent = 'Kata sandi minimal 8 karakter.';
+        return;
+    }
+    dbState.users[session.username].password = nw;
+    save();
+    $('passwordMsg').textContent = 'Kata sandi berhasil diubah dan tersimpan di Cloud.';
+    $('passwordForm').reset();
+});
+
+// Set default dates initially
+setToday('pStart');
+setToday('payDate');
+
+// Expose internal functions to the global window for inline HTML onclick/oninput handlers
+window.switchTab = switchTab;
+window.logout = logout;
+window.resetPersonForm = resetPersonForm;
+window.renderPeople = renderPeople;
+window.editPerson = editPerson;
+window.quickPay = quickPay;
+window.deletePerson = deletePerson;
+window.renderPayments = renderPayments;
+window.deletePayment = deletePayment;
+window.showReceipt = showReceipt;
+window.renderArrears = renderArrears;
+window.renderReports = renderReports;
+window.exportCSV = exportCSV;
+window.backupData = backupData;
+window.restoreData = restoreData;
+window.clearTransactions = clearTransactions;
+window.setToday = setToday;
+</script>
+</body>
+</html>
